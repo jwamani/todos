@@ -2,7 +2,7 @@
 file having all teh schemas for our database tables
 """
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Generic, TypeVar
 from datetime import datetime
 
 # Todos
@@ -60,3 +60,13 @@ class User(UserBase):
         },
         "from_attributes": True
     }
+T = TypeVar("T")
+
+class Response(BaseModel, Generic[T]):
+    status: str = "success"
+    data: T
+
+class ResponseList(BaseModel, Generic[T]):
+    status: str = "success"
+    results: int
+    data: list[T]
