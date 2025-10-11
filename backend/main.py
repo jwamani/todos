@@ -70,16 +70,20 @@ def read_todo(todo_id: int, db: Session = Depends(get_db), current_user: User = 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Todo not found")
     return todo
 
+
 @app.post("/todos", response_model=Todo)
 def create_todo_(todo: TodoCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return create_todo(db, todo, owner_id=current_user.id)
 
+
 @app.put("/todos/{todo_id}")
-def update_todo_(todo_id: int, todo_updates: TodoUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def update_todo_(todo_id: int, todo_updates: TodoUpdate, db: Session = Depends(get_db),
+                 current_user: User = Depends(get_current_user)):
     todo = get_todo(db, todo_id=todo_id, owner_id=current_user.id)
     if todo is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Todo not found")
     return update_todo(db, todo, todo_updates)
+
 
 @app.delete("/todos/{todo_id}")
 def delete_todo_(todo_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -89,9 +93,10 @@ def delete_todo_(todo_id: int, db: Session = Depends(get_db), current_user: User
     success = delete_todo(db, todo).get("success")
     return success
 
+
 # login endpoint
 @app.post("/token")
-def login_for_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login_for_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = get_user_by_email(db, email=form_data.username)
     if not user:
         raise HTTPException(
@@ -104,10 +109,11 @@ def login_for_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Sessio
 
     return {"access_token": access_token, "token_type": "bearer"}
 
+
 @app.post("/users", response_model=User, status_code=status.HTTP_201_CREATED)
-def create_new_user(user_data: UserCreate, db: Session = Depends(get_db)):
+async def create_new_user(user_data: UserCreate, db: Session = Depends(get_db)):
     db_user = get_user_by_email(db, email=user_data.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return create_user(db, user_data)
-
+    created = create_user(db, user_data)
+    return created.get("user")

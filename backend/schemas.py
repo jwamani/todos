@@ -18,7 +18,7 @@ class TodoCreate(TodoBase):
 class TodoUpdate(TodoBase):
     title: str | None = None
     description: str | None = None
-    priority: int | None = None
+    priority: int | None = Field(default=None, le=3, ge=1)
     completed: bool | None = None
 
 class Todo(TodoBase):

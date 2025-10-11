@@ -11,13 +11,14 @@ KEY = os.getenv("SECRET_KEY")
 ALGO = os.getenv("ALGORITHM")
 EXPIRE_MINS = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
-# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto") has an issue
+
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto") # bcrypt has an issue
 
 def verify_password(plain_passwd, hashed_passwd) -> bool:
-    return bcrypt_sha256.verify(plain_passwd, hashed_passwd)
+    return pwd_context.verify(plain_passwd, hashed_passwd)
 
 def generate_password_hash(password: str) -> str:
-    return bcrypt_sha256.hash(password)
+    return pwd_context.hash(password)
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
