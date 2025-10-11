@@ -12,6 +12,7 @@ class Todo(Base):
     completed = Column(Boolean, default=False)
     priority = Column(Integer, default=3) # 1 to 3
     owner_id = Column(Integer, ForeignKey("users.id"))
+
     owner = relationship("User", back_populates="todos")
 
     created_at = Column(DATETIME(timezone=True), server_default=func.now())
