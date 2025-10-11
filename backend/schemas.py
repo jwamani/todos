@@ -35,11 +35,9 @@ class Todo(TodoBase):
                 "description": "A 30-minute break for lunch with family and friends",
                 "priority": 3
             }
-        }
+        },
+        "from_attributes": True
     }
-
-    class Config:
-        orm_mode = True
 
 # Users
 class UserBase(BaseModel):
@@ -53,5 +51,12 @@ class User(UserBase):
     is_active: bool
     todos: list[Todo] = []
 
-    class Config:
-        orm_mode = True
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "email": "johndoe@mail.com",
+            }
+        },
+        "from_attributes": True
+    }
