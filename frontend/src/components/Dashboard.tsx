@@ -117,17 +117,31 @@ function Dashboard() {
     }
 
     const handleToggleComplete = async (id: number) => {
+        const todo = todos.find(t => t.id === id)
+        if (!todo) return
+
+        // Save original state for rollback
+        const originalTodo = { ...todo }
+
+        // Optimistic update - update UI immediately
+        const optimisticTodo = {
+            ...todo,
+            completed: !todo.completed,
+            updated_at: new Date().toISOString() // Optimistic timestamp
+        }
+        setTodos(todos.map(t => t.id === id ? optimisticTodo : t))
+
+        // Try to sync with backend
         try {
             setError("")
-            const todo = todos.find(t => t.id === id)
-            if (!todo) return
-
             const updates: TodoUpdate = {
                 completed: !todo.completed
             }
-            const updatedTodo = await updateTodo(id, updates)
-            setTodos(todos.map(t => t.id === id ? updatedTodo : t))
+            const serverTodo = await updateTodo(id, updates)
+            setTodos(todos.map(t => t.id === id ? serverTodo : t))
         } catch (err) {
+            // Rollback on error - revert to original state
+            setTodos(todos.map(t => t.id === id ? originalTodo : t))
             setError(err instanceof Error ? err.message : "Failed to update todo")
         }
     }

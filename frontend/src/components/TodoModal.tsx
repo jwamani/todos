@@ -16,7 +16,7 @@ interface TodoModalProps {
 function TodoModal({ isOpen, onClose, onSave, editTodo }: TodoModalProps) {
     const [title, setTitle] = useState(editTodo?.title || "")
     const [description, setDescription] = useState(editTodo?.description || "")
-    const [priority, setPriority] = useState(editTodo?.priority || 1)
+    const [priority, setPriority] = useState(editTodo?.priority || 3)
 
     if (!isOpen) return null
 
@@ -29,7 +29,7 @@ function TodoModal({ isOpen, onClose, onSave, editTodo }: TodoModalProps) {
     const handleClose = () => {
         setTitle("")
         setDescription("")
-        setPriority(1)
+        setPriority(3)
         onClose()
     }
     useEffect(() => {
