@@ -1,0 +1,8 @@
+fastapi[standard]
+uvicorn[standard]
+argon2-cffi
+passlib[argon2]
+python-multipart
+sqlalchemy
+python-jose[cryptography]
+python-dotenv

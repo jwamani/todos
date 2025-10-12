@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  # Backend API service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: todo-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount code for hot reload
+      - ./backend:/app
+      # Persist SQLite database
+      - ./backend/todos.db:/app/todos.db
+      # Don't mount virtual environment
+      - /app/.venv
+    env_file:
+      - ./backend/.env
+    networks:
+      - todo-network
+    restart: unless-stopped
+
+  # Frontend service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: todo-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      # Mount code for hot reload
+      - ./frontend:/app
+      # Don't mount node_modules (use container's version)
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    networks:
+      - todo-network
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  todo-network:
+    driver: bridge
