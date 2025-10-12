@@ -13,6 +13,7 @@
 		"axios": "^1.12.2",
 		"lucide-preact": "^0.545.0",
 		"preact": "^10.27.2",
+		"preact-router": "^4.1.2",
 		"tailwindcss": "^4.1.14"
 	},
 	"devDependencies": {

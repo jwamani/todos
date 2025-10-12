@@ -1,6 +1,17 @@
-import { Clipboard, CheckCircle2, LockKeyhole , ListTodoIcon} from "lucide-preact"
+import { Clipboard, CheckCircle2, LockKeyhole, ListTodoIcon } from "lucide-preact"
+import { useAuth } from "../hooks/useAuth"
+import { useEffect } from "preact/hooks"
+import { route } from "preact-router"
 
 function Welcome() {
+    const { isAuthenticated } = useAuth()
+
+    // Redirect to dashboard if already logged in
+    useEffect(() => {
+        if (isAuthenticated) {
+            route('/dashboard')
+        }
+    }, [isAuthenticated])
     return (
         <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-slate-50 to-teal-50">
             {/* Navigation */}
@@ -8,18 +19,18 @@ function Welcome() {
                 <div className="max-w-screen mx-20 px-2 sm:px-6">
                     <div className="flex justify-between items-center h-16">
                         <div className="flex gap-3 items-center">
-                            <ListTodoIcon className="text-slate-700 size-[30px]"/>
+                            <ListTodoIcon className="text-slate-700 size-[30px]" />
                             <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                                 Tasker
                             </span>
                         </div>
                         <div className="flex gap-4">
-                            <button className="px-4 py-2 text-slate-700 font-medium hover:text-emerald-600 transition-colors">
+                            <a href="/login" className="px-4 py-2 text-slate-700 font-medium hover:text-emerald-600 transition-colors">
                                 Login
-                            </button>
-                            <button className="px-6 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-md">
+                            </a>
+                            <a href="/register" className="px-6 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-md">
                                 Sign Up
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -39,12 +50,12 @@ function Welcome() {
                         Track tasks, set priorities, and never miss a deadline.
                     </p>
                     <div className="flex gap-4 justify-center">
-                        <button className="px-8 py-4 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors shadow-lg hover:shadow-xl">
+                        <a href="/register" className="px-8 py-4 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors shadow-lg hover:shadow-xl">
                             Get Started Free
-                        </button>
-                        <button className="px-8 py-4 bg-white text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors shadow-md border border-slate-200">
+                        </a>
+                        <a href="/login" className="px-8 py-4 bg-white text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors shadow-md border border-slate-200">
                             Learn More
-                        </button>
+                        </a>
                     </div>
                 </div>
 

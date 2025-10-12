@@ -1,51 +1,9 @@
 import { Plus, LogOut, ListTodoIcon, CheckCircle2, Circle, Pencil, Trash2, Filter, Clock } from "lucide-preact"
-import { useState } from "preact/hooks"
+import { useState, useEffect } from "preact/hooks"
+import { route } from "preact-router"
 import TodoModal from "./TodoModal"
-import { todo } from "node:test"
-
-// Mock data for demonstration (matches backend schema)
-const mockTodos = [
-    {
-        id: 1,
-        title: "Complete project documentation",
-        description: "Write comprehensive docs for the API",
-        priority: 3,
-        completed: false,
-        owner_id: 1,
-        created_at: "2025-10-12T10:30:00",
-        updated_at: null
-    },
-    {
-        id: 2,
-        title: "Review pull requests",
-        description: "Check and approve pending PRs",
-        priority: 2,
-        completed: true,
-        owner_id: 1,
-        created_at: "2025-10-11T14:20:00",
-        updated_at: "2025-10-12T09:15:00"
-    },
-    {
-        id: 3,
-        title: "Update dependencies",
-        description: "Update all npm packages to latest versions",
-        priority: 1,
-        completed: false,
-        owner_id: 1,
-        created_at: "2025-10-10T16:45:00",
-        updated_at: null
-    },
-    {
-        id: 4,
-        title: "Fix responsive design bugs",
-        description: "Mobile view needs adjustments",
-        priority: 3,
-        completed: false,
-        owner_id: 1,
-        created_at: "2025-10-12T08:00:00",
-        updated_at: "2025-10-12T11:30:00"
-    },
-]
+import { useAuth } from "../hooks/useAuth"
+import { getTodos, createTodo, updateTodo, deleteTodo, type Todo, type TodoCreate, type TodoUpdate } from "../api"
 
 // Helper function to format relative time
 const formatRelativeTime = (dateString: string) => {
@@ -65,10 +23,45 @@ const formatRelativeTime = (dateString: string) => {
 }
 
 function Dashboard() {
+    const { user, isAuthenticated, logout } = useAuth()
     const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all')
-    const [todos, setTodos] = useState(mockTodos)
+    const [todos, setTodos] = useState<Todo[]>([])
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [editingTodo, setEditingTodo] = useState<typeof mockTodos[0] | null>(null)
+    const [editingTodo, setEditingTodo] = useState<Todo | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState("")
+
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (!isAuthenticated) {
+            route('/login')
+        }
+    }, [isAuthenticated])
+
+    // Fetch todos on mount
+    useEffect(() => {
+        if (isAuthenticated) {
+            loadTodos()
+        }
+    }, [isAuthenticated])
+
+    const loadTodos = async () => {
+        try {
+            setIsLoading(true)
+            setError("")
+            const fetchedTodos = await getTodos()
+            setTodos(fetchedTodos)
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to load todos")
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleLogout = () => {
+        logout()
+        route('/')
+    }
 
     const filteredTodos = todos.filter(todo => {
         if (filter === 'active') return !todo.completed
@@ -76,57 +69,77 @@ function Dashboard() {
         return true
     })
 
-    const handleSaveTodo = (todoData: { title: string; description: string; priority: number }) => {
-        if (editingTodo) {
-            // Update existing todo
-            setTodos(todos.map(todo =>
-                todo.id === editingTodo.id
-                    ? { ...todo, ...todoData, updated_at: new Date().toISOString() }
-                    : todo
-            ))
-            setEditingTodo(null)
-        } else {
-            // Create new todo
-            const newTodo = {
-                id: Math.max(...todos.map(t => t.id), 0) + 1,
-                ...todoData,
-                completed: false,
-                owner_id: 1,
-                created_at: new Date().toISOString(),
-                updated_at: null
+    const handleSaveTodo = async (todoData: { title: string; description: string; priority: number }) => {
+        try {
+            setError("")
+
+            if (editingTodo) {
+                // Update existing todo
+                const updates: TodoUpdate = {
+                    title: todoData.title,
+                    description: todoData.description,
+                    priority: todoData.priority
+                }
+                const updatedTodo = await updateTodo(editingTodo.id, updates)
+                setTodos(todos.map(todo => todo.id === editingTodo.id ? updatedTodo : todo))
+                setEditingTodo(null)
+            } else {
+                // Create new todo
+                const newTodoData: TodoCreate = {
+                    title: todoData.title,
+                    description: todoData.description,
+                    priority: todoData.priority
+                }
+                const newTodo = await createTodo(newTodoData)
+                setTodos([...todos, newTodo])
             }
-            setTodos([...todos, newTodo])
+            setIsModalOpen(false)
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to save todo")
         }
-        setIsModalOpen(false)
     }
 
-    const handleEditTodo = (todo: typeof mockTodos[0]) => {
+    const handleEditTodo = (todo: Todo) => {
         setEditingTodo(todo)
         setIsModalOpen(true)
     }
 
-    const handleDeleteTodo = (id: number) => {
+    const handleDeleteTodo = async (id: number) => {
         if (confirm('Are you sure you want to delete this task?')) {
-            setTodos(todos.filter(todo => todo.id !== id))
+            try {
+                setError("")
+                await deleteTodo(id)
+                setTodos(todos.filter(todo => todo.id !== id))
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Failed to delete todo")
+            }
         }
     }
 
-    const handleToggleComplete = (id: number) => {
-        setTodos(todos.map(todo =>
-            todo.id === id
-                ? { ...todo, completed: !todo.completed, updated_at: new Date().toISOString() }
-                : todo
-        ))
+    const handleToggleComplete = async (id: number) => {
+        try {
+            setError("")
+            const todo = todos.find(t => t.id === id)
+            if (!todo) return
+
+            const updates: TodoUpdate = {
+                completed: !todo.completed
+            }
+            const updatedTodo = await updateTodo(id, updates)
+            setTodos(todos.map(t => t.id === id ? updatedTodo : t))
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to update todo")
+        }
     }
 
     const getPriorityColor = (priority: number) => {
-        if (priority === 3) return 'bg-rose-100 text-rose-700 border-rose-300'
+        if (priority === 1) return 'bg-rose-100 text-rose-700 border-rose-300'
         if (priority === 2) return 'bg-amber-100 text-amber-700 border-amber-300'
         return 'bg-sky-100 text-sky-700 border-sky-300'
     }
 
     const getPriorityLabel = (priority: number) => {
-        if (priority === 3) return 'Urgent'
+        if (priority === 1) return 'High'
         if (priority === 2) return 'Medium'
         return 'Low'
     }
@@ -135,7 +148,7 @@ function Dashboard() {
         <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-slate-50 to-teal-50">
             {/* Header/Navbar */}
             <nav className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-10">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         {/* Logo */}
                         <div className="flex items-center gap-3">
@@ -148,10 +161,15 @@ function Dashboard() {
                         {/* User Info & Logout */}
                         <div className="flex items-center gap-4">
                             <div className="hidden sm:block text-right">
-                                <p className="text-sm font-medium text-slate-700">John Doe</p>
-                                <p className="text-xs text-slate-500">john@example.com</p>
+                                <p className="text-sm font-medium text-slate-700">
+                                    {user?.email || 'User'}
+                                </p>
+                                <p className="text-xs text-slate-500">Logged in</p>
                             </div>
-                            <button className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:text-rose-600 transition-colors rounded-lg hover:bg-slate-100">
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:text-rose-600 transition-colors rounded-lg hover:bg-slate-100"
+                            >
                                 <LogOut className="h-5 w-5" />
                                 <span className="hidden sm:inline">Logout</span>
                             </button>
@@ -161,12 +179,19 @@ function Dashboard() {
             </nav>
 
             {/* Main Content */}
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header Section */}
                 <div className="mb-8">
                     <h2 className="text-3xl font-bold text-slate-900 mb-2">My Tasks</h2>
                     <p className="text-slate-600">Manage your todos and stay productive</p>
                 </div>
+
+                {/* Error Message */}
+                {error && (
+                    <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-lg">
+                        <p className="text-sm text-rose-600">{error}</p>
+                    </div>
+                )}
 
                 {/* Action Bar */}
                 <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -184,6 +209,12 @@ function Dashboard() {
 
                     {/* Filter Buttons */}
                     <div className="flex gap-2 sm:ml-auto">
+                        {isLoading && (
+                            <div className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600">
+                                <div className="inline-block animate-spin rounded-full h-4 w-4 border-2 border-emerald-600 border-t-transparent"></div>
+                                Loading...
+                            </div>
+                        )}
                         <button
                             onClick={() => setFilter('all')}
                             className={`px-7 py-2 rounded-lg hover:cursor-pointer font-medium transition-all ${filter === 'all'

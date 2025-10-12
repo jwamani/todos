@@ -1,5 +1,5 @@
 import { X } from "lucide-preact"
-import { useState } from "preact/hooks"
+import { useState, useEffect } from "preact/hooks"
 
 interface TodoModalProps {
     isOpen: boolean
@@ -8,7 +8,7 @@ interface TodoModalProps {
     editTodo?: {
         id: number
         title: string
-        description: string
+        description: string | null
         priority: number
     } | null
 }
@@ -16,7 +16,7 @@ interface TodoModalProps {
 function TodoModal({ isOpen, onClose, onSave, editTodo }: TodoModalProps) {
     const [title, setTitle] = useState(editTodo?.title || "")
     const [description, setDescription] = useState(editTodo?.description || "")
-    const [priority, setPriority] = useState(editTodo?.priority || 3)
+    const [priority, setPriority] = useState(editTodo?.priority || 1)
 
     if (!isOpen) return null
 
@@ -29,9 +29,17 @@ function TodoModal({ isOpen, onClose, onSave, editTodo }: TodoModalProps) {
     const handleClose = () => {
         setTitle("")
         setDescription("")
-        setPriority(3)
+        setPriority(1)
         onClose()
     }
+    useEffect(() => {
+        if (editTodo) {
+            setTitle(editTodo.title)
+            setDescription(editTodo.description || "")
+            setPriority(editTodo.priority)
+        }
+    }, [editTodo])
+
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -98,31 +106,31 @@ function TodoModal({ isOpen, onClose, onSave, editTodo }: TodoModalProps) {
                                 type="button"
                                 onClick={() => setPriority(1)}
                                 className={`py-3 rounded-lg font-medium transition-all ${priority === 1
-                                        ? "bg-sky-100 text-sky-700 border-2 border-sky-500"
-                                        : "bg-white text-slate-600 border-2 border-slate-200 hover:border-sky-300"
+                                    ? "bg-rose-100 text-rose-700 border-2 border-rose-500"
+                                    : "bg-white text-slate-600 border-2 border-slate-200 hover:border-rose-300"
                                     }`}
                             >
-                                Low (1)
+                                High
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setPriority(2)}
                                 className={`py-3 rounded-lg font-medium transition-all ${priority === 2
-                                        ? "bg-amber-100 text-amber-700 border-2 border-amber-500"
-                                        : "bg-white text-slate-600 border-2 border-slate-200 hover:border-amber-300"
+                                    ? "bg-amber-100 text-amber-700 border-2 border-amber-500"
+                                    : "bg-white text-slate-600 border-2 border-slate-200 hover:border-amber-300"
                                     }`}
                             >
-                                Medium (2)
+                                Medium
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setPriority(3)}
                                 className={`py-3 rounded-lg font-medium transition-all ${priority === 3
-                                        ? "bg-rose-100 text-rose-700 border-2 border-rose-500"
-                                        : "bg-white text-slate-600 border-2 border-slate-200 hover:border-rose-300"
+                                    ? "bg-sky-100 text-sky-700 border-2 border-sky-500"
+                                    : "bg-white text-slate-600 border-2 border-slate-200 hover:border-sky-300"
                                     }`}
                             >
-                                High (3)
+                                Low
                             </button>
                         </div>
                     </div>
