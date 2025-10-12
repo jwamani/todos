@@ -1,11 +1,11 @@
 import { apiClient } from './client';
 
-// Types matching your backend schemas
+// Types matching my backend schemas
 export interface Todo {
     id: number;
     title: string;
     description: string | null;
-    priority: number; // Backend uses 1=high, 2=medium, 3=low
+    priority: number; //  1=high, 2=medium, 3=low
     completed: boolean;
     owner_id: number;
     created_at: string;

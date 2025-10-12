@@ -36,7 +36,10 @@ class Todo(TodoBase):
                 "priority": 3
             }
         },
-        "from_attributes": True
+        "from_attributes": True,
+        "json_encoders": {
+            datetime: lambda v: v.strftime('%Y-%m-%dT%H:%M:%S.%f') + 'Z' if v else None
+        }
     }
 
 # Users
