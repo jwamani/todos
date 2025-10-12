@@ -1,0 +1,106 @@
+import { Mail, Lock, ArrowRight, ListTodoIcon, Eye, EyeOff } from "lucide-preact"
+import { useState } from "preact/hooks"
+
+function Login() {
+    const [showPassword, setShowPassword] = useState(false)
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-slate-50 to-teal-50 flex items-center justify-center p-4">
+            <div className="max-w-md w-full">
+                {/* Logo/Brand */}
+                <div className="text-center mb-8">
+                    <h1 className="mb-2 flex flex-row justify-center gap-4 items-center">
+                        <ListTodoIcon className="size-[30px] text-slate-700" />
+                        <span className="text-3xl font-bold bg-gradient-to-r from bg-emerald-600 to-teal-600 bg-clip-text text-transparent ">
+                            Tasker
+                        </span>
+                    </h1>
+                    <p className="text-slate-600">Welcome back! Sign in to continue.</p>
+                </div>
+
+                {/* Login Card */}
+                <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
+                    <h2 className="text-2xl font-bold text-slate-900 mb-6">Login to your account</h2>
+
+                    <form className="space-y-5">
+                        {/* Email Field */}
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
+                                Email Address
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Mail className="h-5 w-5 text-slate-400" />
+                                </div>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-colors"
+                                    placeholder="you@example.com"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Password Field */}
+                        <div>
+                            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
+                                Password
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Lock className="h-5 w-5 text-slate-400" />
+                                </div>
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    id="password"
+                                    className="w-full pl-10 pr-12 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-colors"
+                                    placeholder="••••••••"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="h-5 w-5" />
+                                    ) : (
+                                        <Eye className="h-5 w-5" />
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+
+                        {/* Submit Button */}
+                        <button
+                            type="submit"
+                            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                        >
+                            Sign In
+                            <ArrowRight className="h-5 w-5" />
+                        </button>
+                    </form>
+
+                    {/* Sign Up Link */}
+                    <div className="mt-6 text-center">
+                        <p className="text-sm text-slate-600">
+                            Don't have an account?{' '}
+                            <a href="#" className="text-emerald-600 hover:text-emerald-700 font-semibold">
+                                Sign up for free
+                            </a>
+                        </p>
+                    </div>
+                </div>
+
+                {/* Back to Home */}
+                <div className="text-center mt-6">
+                    <a href="#" className="text-sm text-slate-600 hover:text-emerald-600 transition-colors">
+                        ← Back to home
+                    </a>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default Login

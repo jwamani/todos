@@ -1,19 +1,20 @@
-import { useState } from 'preact/hooks'
-import preactLogo from './assets/preact.svg'
-import viteLogo from '/vite.svg'
 import './app.css'
+import Welcome from './components/Welcome'
+import Login from './components/Auth/Login'
+import Register from './components/Auth/Register'
+import Dashboard from './components/Dashboard'
 
 export function App() {
-    //   const [count, setCount] = useState(0)
+    // Toggle between pages for now
+    // Change this to: 'welcome' | 'login' | 'register' | 'dashboard'
+    const currentPage: 'welcome' | 'login' | 'register' | 'dashboard' = 'dashboard'
 
     return (
         <>
-            <div className="bg-red-300">
-                <img src={viteLogo} class="logo" alt="Vite logo" />
-                <img src={preactLogo} class="logo preact" alt="Preact logo" />
-            </div>
-
-            <p className="font-bold text-7xl text-red-500">It has worked</p>
+            {currentPage === 'welcome' && <Welcome />}
+            {currentPage === 'login' && <Login />}
+            {currentPage === 'register' && <Register />}
+            {currentPage === 'dashboard' && <Dashboard />}
         </>
     )
-} 
+}

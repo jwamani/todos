@@ -4,5 +4,15 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-    plugins: [preact(), tailwindcss(),],
+    plugins: [preact(), tailwindcss()],
+    server: {
+        host: true,
+        port: 5173,
+        watch: {
+            usePolling: true, // Enable if on WSL/Docker
+        },
+        hmr: {
+            overlay: true, // Show errors as overlay
+        }
+    }
 })
