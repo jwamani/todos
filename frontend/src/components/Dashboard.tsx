@@ -348,7 +348,7 @@ function Dashboard() {
                                                 }`}>
                                                 {todo.title}
                                             </h3>
-                                            <span className={`px-3 py-1 text-xs font-medium rounded-full border whitespace-nowrap ${getPriorityColor(todo.priority)
+                                            <span className={`px-3 py-1 text-xs font-medium rounded-full animate-pulse border whitespace-nowrap ${getPriorityColor(todo.priority)
                                                 }`}>
                                                 {getPriorityLabel(todo.priority)}
                                             </span>
@@ -360,13 +360,15 @@ function Dashboard() {
 
                                         {/* Actions */}
                                         <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => handleEditTodo(todo)}
-                                                className="flex items-center gap-1 px-3 py-1.5 text-sm text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                                Edit
-                                            </button>
+                                            {!todo.completed && (
+                                                <button
+                                                    onClick={() => handleEditTodo(todo)}
+                                                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                                                >
+                                                    <Pencil className="h-4 w-4" />
+                                                    Edit
+                                                </button>
+                                            )}
                                             <button
                                                 onClick={() => handleDeleteTodo(todo.id)}
                                                 className="flex items-center gap-1 px-3 py-1.5 text-sm text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
