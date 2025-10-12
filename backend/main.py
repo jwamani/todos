@@ -7,6 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.requests import Request
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 import os
@@ -34,6 +35,13 @@ models.Base.metadata.create_all(bind=engine)  # ran once
 EXPIRE_MINS = float(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
 app = FastAPI(title="Todo Backend API", version="1.0.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 logger.info("Backend API started")
 # exception handlers
@@ -49,7 +57,7 @@ async def integrity_exception_handler(request: Request, exc: IntegrityError):
     logger.error(f"Database Integrity error: {str(exc.orig)}")
     return JSONResponse(
         status_code=status.HTTP_409_CONFLICT,
-        content={"detail": exc.detail}
+        content={"detail": str(exc.orig).lower()}
     )
 
 @app.exception_handler(SQLAlchemyError)
@@ -90,19 +98,21 @@ def get_current_user( db: Annotated[Session, Depends(get_db)], token: Annotated[
     return user
 
 
-@app.get("/")
+@app.get("/", status_code=status.HTTP_200_OK)
 async def read_root():
     return {"message": "Server up and running"}
 
 
 # all todos
-@app.get("/todos", response_model=ResponseList[Todo])
+@app.get("/todos", response_model=ResponseList[Todo], status_code=status.HTTP_200_OK)
 async def read_todos(db: Annotated[Session, Depends(get_db)], current_user: Annotated[User, Depends(get_current_user)],skip: int = 0, limit: int = 50):
     todos = get_todos(db, owner_id=current_user.id, skip=skip, limit=limit)
     return {"results": len(todos), "data": todos}
 
 
-@app.get("/todos/{todo_id}", response_model=Response[Todo])
+@app.get(
+    "/todos/{todo_id}", response_model=Response[Todo], status_code=status.HTTP_200_OK
+)
 async def read_todo(
     todo_id: int,
     db: Annotated[Session, Depends(get_db)],
@@ -114,7 +124,7 @@ async def read_todo(
     return {"data": todo}
 
 
-@app.post("/todos", response_model=Response[Todo])
+@app.post("/todos", response_model=Response[Todo], status_code=status.HTTP_201_CREATED)
 async def create_todo_(
     todo: TodoCreate,
     db: Annotated[Session, Depends(get_db)],
@@ -124,7 +134,9 @@ async def create_todo_(
     return {"data": todo}
 
 
-@app.put("/todos/{todo_id}", response_model=Response[Todo])
+@app.put(
+    "/todos/{todo_id}", response_model=Response[Todo], status_code=status.HTTP_200_OK
+)
 async def update_todo_(
     todo_id: int,
     todo_updates: TodoUpdate,

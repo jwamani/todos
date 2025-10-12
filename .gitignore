@@ -2,3 +2,5 @@
 /backend/todos.db
 .idea
 /backend/.env
+*.log
+/frontend/.env
