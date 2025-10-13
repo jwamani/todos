@@ -13,6 +13,7 @@ interface AuthContextType {
     user: User | null;
     token: string | null;
     isAuthenticated: boolean;
+    isLoading: boolean;
     login: (token: string) => void;
     logout: () => void;
 }
@@ -24,6 +25,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ComponentChildren }) {
     const [token, setToken] = useState<string | null>(null);
     const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     // On mount, check if there's a saved token in localStorage
     useEffect(() => {
@@ -45,6 +47,7 @@ export function AuthProvider({ children }: { children: ComponentChildren }) {
                 localStorage.removeItem('auth_token');
             }
         }
+        setIsLoading(false);
     }, []);
 
     // Login function - saves token and decodes user info
@@ -57,7 +60,7 @@ export function AuthProvider({ children }: { children: ComponentChildren }) {
             const payload = JSON.parse(atob(newToken.split('.')[1]));
 
             setUser({
-                id: 0, 
+                id: 0,
                 email: payload.subject, // 'subject' contains the email
             });
         } catch (error) {
@@ -82,6 +85,7 @@ export function AuthProvider({ children }: { children: ComponentChildren }) {
                 user,
                 token,
                 isAuthenticated,
+                isLoading,
                 login,
                 logout,
             }}

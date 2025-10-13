@@ -23,7 +23,7 @@ const formatRelativeTime = (dateString: string) => {
 }
 
 function Dashboard() {
-    const { user, isAuthenticated, logout } = useAuth()
+    const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth()
     const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all')
     const [todos, setTodos] = useState<Todo[]>([])
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -31,19 +31,19 @@ function Dashboard() {
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState("")
 
-    // Redirect to login if not authenticated
+    // Redirect to login if not authenticated (but wait for auth to load first)
     useEffect(() => {
-        if (!isAuthenticated) {
+        if (!authLoading && !isAuthenticated) {
             route('/login')
         }
-    }, [isAuthenticated])
+    }, [isAuthenticated, authLoading])
 
     // Fetch todos on mount
     useEffect(() => {
-        if (isAuthenticated) {
+        if (!authLoading && isAuthenticated) {
             loadTodos()
         }
-    }, [isAuthenticated])
+    }, [isAuthenticated, authLoading])
 
     const loadTodos = async () => {
         try {
