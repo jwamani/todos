@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL for your backend API
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://todos-4xu1.onrender.com';
 
 // Create axios instance with default config
 export const apiClient = axios.create({
