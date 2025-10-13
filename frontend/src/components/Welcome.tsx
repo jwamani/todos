@@ -16,19 +16,19 @@ function Welcome() {
         <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-slate-50 to-teal-50">
             {/* Navigation */}
             <nav className="bg-white shadow-sm border-b border-slate-200">
-                <div className="max-w-screen mx-20 px-2 sm:px-6">
+                <div className="max-w-screen mx-auto px-4 sm:px-6 lg:mx-20">
                     <div className="flex justify-between items-center h-16">
-                        <div className="flex gap-3 items-center">
-                            <ListTodoIcon className="text-slate-700 size-[30px]" />
-                            <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                        <div className="flex gap-2 sm:gap-3 items-center">
+                            <ListTodoIcon className="text-slate-700 size-6 sm:size-[30px]" />
+                            <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                                 Tasker
                             </span>
                         </div>
-                        <div className="flex gap-4">
-                            <a href="/login" className="px-4 py-2 text-slate-700 font-medium hover:text-emerald-600 transition-colors">
+                        <div className="flex gap-2 sm:gap-4">
+                            <a href="/login" className="px-3 py-2 sm:px-4 text-sm sm:text-base text-slate-700 font-medium hover:text-emerald-600 transition-colors">
                                 Login
                             </a>
-                            <a href="/register" className="px-6 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-md">
+                            <a href="/register" className="px-4 py-2 sm:px-6 text-sm sm:text-base bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-md">
                                 Sign Up
                             </a>
                         </div>
