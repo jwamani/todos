@@ -10,6 +10,7 @@
 	},
 	"dependencies": {
 		"@tailwindcss/vite": "^4.1.14",
+		"@vercel/analytics": "^1.5.0",
 		"axios": "^1.12.2",
 		"lucide-preact": "^0.545.0",
 		"preact": "^10.27.2",
