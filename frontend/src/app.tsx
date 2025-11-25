@@ -5,6 +5,7 @@ import Register from './components/Auth/Register'
 import Dashboard from './components/Dashboard'
 import { Router, Route } from "preact-router"
 import { AuthProvider } from './context/AuthContext'
+import { Analytics } from "@vercel/analytics/react"
 
 export function App() {
     return (
@@ -15,6 +16,7 @@ export function App() {
                 <Route path="/register" component={Register} />
                 <Route path="/dashboard" component={Dashboard} />
             </Router>
+            <Analytics />
         </AuthProvider>
     )
 }
